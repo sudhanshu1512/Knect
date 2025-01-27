@@ -38,7 +38,10 @@ app.use("/api/v1/favorite", favoriteRoute);
 app.use("/api/v1/bookmark", bookmarkRoute);
 app.use("/api/v1/notification-system", notificationSystemRoute);
 
-
+app.use(express.static(path.join(__dirname, "/front/dist")));
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "front", "dist" , "index.html"));
+});
 
 server.listen(PORT, () => {
   connectDB();
