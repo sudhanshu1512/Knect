@@ -9,7 +9,7 @@ const socketMiddleware = () => {
         if (socket) {
           socket.disconnect();
         }
-        socket = io('http://localhost:8000');
+        socket = io("https://knect.onrender.com");
         
         // Handle socket events here instead of storing socket in Redux
         socket.on('connect', () => {

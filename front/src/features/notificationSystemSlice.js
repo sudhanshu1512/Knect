@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8000";
+const BASE_URL = import.meta.env.VITE_BASE_URL || "https://knect.onrender.com";
 
 const initialState = {
   notifications: [],

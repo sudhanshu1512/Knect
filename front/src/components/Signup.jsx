@@ -67,7 +67,7 @@ const Signup = () => {
         try {
             setLoading(true);
             const res = await axios.post(
-              "http://localhost:8000/api/v1/user/register",
+              "https://knect.onrender.com/api/v1/user/register",
               input,
               {
                 headers: {

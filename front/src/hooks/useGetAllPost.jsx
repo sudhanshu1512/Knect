@@ -9,9 +9,12 @@ const useGetAllPost = () => {
   useEffect(() => {
     const fetchAllPost = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/v1/post/all", {
-          withCredentials: true
-        });
+        const res = await axios.get(
+          "https://knect.onrender.com/api/v1/post/all",
+          {
+            withCredentials: true
+          }
+        );
         if (res.data.success) {
           // Posts are already sorted by createdAt from backend
           dispatch(setPosts(res.data.posts));
