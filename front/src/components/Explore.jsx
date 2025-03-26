@@ -72,8 +72,8 @@ const Explore = () => {
   }, [videos]);
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-background p-4">
-      <div className="w-[380px] h-[calc(100vh-80px)] overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
+    <div className="flex flex-col items-center min-h-100 bg-background p-4">
+      <div className="md:w-[380px] w-[250px] h-[calc(100vh-80px)] overflow-y-scroll snap-y snap-mandatory scrollbar-hide">
         {videos.map((videoId, index) => (
           <div
             key={videoId}

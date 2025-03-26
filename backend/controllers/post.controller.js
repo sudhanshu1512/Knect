@@ -334,3 +334,53 @@ export const bookmarkPost = async (req, res) => {
     console.log(error);
   }
 };
+
+export const deleteComment = async (req, res) => {
+  try {
+    const { id: postId, commentId } = req.params;
+    const userId = req.id;
+
+    // Find the comment
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({
+        message: "Comment not found",
+        success: false
+      });
+    }
+
+    // Check if user is authorized to delete the comment
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+        success: false
+      });
+    }
+
+    if (comment.author.toString() !== userId && post.author.toString() !== userId) {
+      return res.status(403).json({
+        message: "Not authorized to delete this comment",
+        success: false
+      });
+    }
+
+    // Remove comment from post's comments array
+    post.comments = post.comments.filter(c => c.toString() !== commentId);
+    await post.save();
+
+    // Delete the comment
+    await Comment.findByIdAndDelete(commentId);
+
+    return res.status(200).json({
+      message: "Comment deleted successfully",
+      success: true
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Error deleting comment",
+      success: false
+    });
+  }
+};

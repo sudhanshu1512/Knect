@@ -2,10 +2,9 @@ import { setAuthUser } from "@/redux/authSlice";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
 import axios from "axios";
 import {
-  Heart,
   Home,
+  MessageCircleHeart,
   LogOut,
-  MessageCircle,
   PlusSquare,
   Search,
   TrendingUp
@@ -16,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import CreatePost from "./CreatePost";
 import LogoutModal from "./LogoutModal";
-import NotificationButton from "./NotificationButton";
+import NotificationButton from "./Notification";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import image from "../assets/image.png";
 
@@ -75,7 +74,7 @@ const LeftSidebar = () => {
     { icon: <Home />, text: "Home" },
     { icon: <Search />, text: "Search" },
     { icon: <TrendingUp />, text: "Explore" },
-    { icon: <MessageCircle />, text: "Messages" },
+    { icon: <MessageCircleHeart />, text: "Messages" },
     { component: <NotificationButton /> },
     { icon: <PlusSquare />, text: "Create" },
     {
@@ -90,10 +89,10 @@ const LeftSidebar = () => {
     { icon: <LogOut />, text: "Logout" }
   ];
   return (
-    <div className="fixed top-0 z-10 left-0 px-4 border-r border-gray-300 w-[16%] h-screen">
+    <div className="fixed  top-0 z-10 left-0 px-4 lg:border-r  border-gray-300 w-[16%] h-screen  ">
       <div className="flex flex-col">
       
-                        <img src={image} alt="knect" className="w-16 h-16 object-cover p-3" />
+                        <img src={image} alt="knect" className="w-16 h-16 sm:object-cover p-3 sm:block hidden" />
                     
         <div>
           {sidebarItems.map((item, index) => {
@@ -104,11 +103,15 @@ const LeftSidebar = () => {
                 className="flex items-center gap-3 relative hover:bg-gray-100 cursor-pointer rounded-lg p-3 my-3"
               >
                 {item.component ? (
-                  item.component
+                  <div className="flex items-center gap-3 ">
+                    {item.component}
+                  </div>
                 ) : (
                   <>
-                    {item.icon}
-                    <span>{item.text}</span>
+                  <div>
+                     {item.icon}
+                  </div>
+                    <span className="sm:block hidden"> {item.text}</span>
                   </>
                 )}
               </div>

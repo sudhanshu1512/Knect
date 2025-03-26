@@ -1,12 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Heart } from "lucide-react";
+import { Bell, X } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { fetchNotifications, markNotificationsAsRead } from "../features/notificationSystemSlice";
+import { Button } from "./ui/button";
+import { fetchNotifications, markNotificationsAsRead, deleteNotification } from "../features/notificationSystemSlice";
+import { toast } from "sonner";
 
-const NotificationButton = () => {
+const Notification = () => {
   const dispatch = useDispatch();
   const { notifications = [], loading, error } = useSelector((state) => state.notificationSystem || { notifications: [], loading: false, error: null });
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -28,26 +29,32 @@ const NotificationButton = () => {
     }
   };
 
+  const handleDeleteNotification = async (notificationId) => {
+    try {
+      await dispatch(deleteNotification(notificationId)).unwrap();
+      toast.success("Notification deleted");
+    } catch (error) {
+      toast.error("Failed to delete notification");
+    }
+  };
+
   console.log("Current notifications state:", { notifications, loading, error, unreadCount });
 
   return (
-    <div className="relative">
+    <div className="flex items-center gap-3">
       <Popover onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            className="w-full flex items-center gap-4 hover:bg-gray-100 py-6"
-          >
-            <Heart />
-            <span>Notifications</span>
+          <div className="flex items-center gap-3">
+            <Bell className="" />
+            <span className="sm:block hidden">Notifications</span>
             {unreadCount > 0 && (
-              <div className="absolute bottom-6 left-6 h-5 w-5 flex items-center justify-center rounded-full bg-red-600 text-white text-xs">
+              <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 ml-2">
                 {unreadCount}
-              </div>
+              </span>
             )}
-          </Button>
+          </div>
         </PopoverTrigger>
-        <PopoverContent className="w-80 max-h-[400px] overflow-y-auto">
+        <PopoverContent className="w-80 ml-2 max-h-[400px] overflow-y-auto">
           <div className="space-y-2">
             {error ? (
               <p className="text-center text-red-500 py-4">Error: {error}</p>
@@ -59,10 +66,10 @@ const NotificationButton = () => {
               notifications.map((notification) => (
                 <div
                   key={notification._id}
-                  className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg"
+                  className="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg relative group"
                 >
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={notification.sender?.profilePicture} />
+                    <AvatarImage src={notification.sender?.profilePicture} alt={notification.sender?.username} />
                     <AvatarFallback>
                       {notification.sender?.username?.[0] || "U"}
                     </AvatarFallback>
@@ -88,6 +95,14 @@ const NotificationButton = () => {
                       />
                     </div>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="opacity-0 group-hover:opacity-100 absolute right-2 top-2 h-6 w-6 p-0.5 hover:bg-red-100 hover:text-red-500"
+                    onClick={() => handleDeleteNotification(notification._id)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               ))
             )}
@@ -98,4 +113,4 @@ const NotificationButton = () => {
   );
 };
 
-export default NotificationButton;
+export default Notification;

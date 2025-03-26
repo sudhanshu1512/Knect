@@ -115,11 +115,11 @@ const ChatPage = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate('/')}
-                className="mr-1"
+                className=" hidden md:block mr-1"
               >
                 <ArrowLeft className="h-6 w-6" />
               </Button>
-              <h1 className="text-lg font-semibold">{user?.username}</h1>
+              <h1 className="text-lg font-semibold m-auto">{user?.username}</h1>
             </div>
             <Button variant="ghost" size="icon">
               <Video className="h-5 w-5" />
@@ -130,7 +130,7 @@ const ChatPage = () => {
           </div>
 
           {/* Search Bar */}
-          <div className="px-4 py-2">
+          <div className="px-4 py-2 w-[70%] md:w-full mx-auto">
             <Input
               placeholder="Search"
               className="w-full bg-gray-100 border-none rounded-xl"
@@ -140,12 +140,12 @@ const ChatPage = () => {
           </div>
 
           {/* Messages Label */}
-          <div className="px-4 py-2">
+          <div className=" px-4 py-2 ml-[55px]">
             <h2 className="font-semibold">Messages</h2>
           </div>
 
           {/* Users List */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto ml-[55px]">
             {loading ? (
               <div className="text-center py-4 text-gray-500">Loading...</div>
             ) : users.length === 0 ? (
@@ -159,8 +159,8 @@ const ChatPage = () => {
                   className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
                   onClick={() => handleUserSelect(u)}
                 >
-                  <div className="relative mr-3">
-                    <Avatar className="h-14 w-14">
+                  <div className="relative mr-6">
+                    <Avatar className="h-14 w-14 md:h-16 md:w-16">
                       <AvatarImage src={u.profilePicture} />
                       <AvatarFallback>{u.username[0]}</AvatarFallback>
                     </Avatar>
@@ -190,7 +190,7 @@ const ChatPage = () => {
                 dispatch(setSelectedUser(null));
                 dispatch(setMessages([]));
               }}
-              className="mr-3"
+              className="ml-10"
             >
               <ArrowLeft className="h-6 w-6" />
             </Button>
@@ -208,17 +208,11 @@ const ChatPage = () => {
               <Button variant="ghost" size="icon">
                 <Phone className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon">
-                <Video className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Info className="h-5 w-5" />
-              </Button>
             </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto bg-white px-4">
+          <div className="flex-1 ml-12 overflow-y-auto  bg-white px-4">
             <Messages />
           </div>
 

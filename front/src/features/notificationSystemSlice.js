@@ -13,14 +13,11 @@ export const fetchNotifications = createAsyncThunk(
   "notificationSystem/fetchNotifications",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("Fetching notifications...");
       const response = await axios.get(`${BASE_URL}/api/v1/notification-system`, {
         withCredentials: true
       });
-      console.log("Notifications response:", response.data);
       return response.data.notifications;
     } catch (error) {
-      console.error("Error fetching notifications:", error.response?.data || error.message);
       return rejectWithValue(error.response?.data || { message: error.message });
     }
   }
@@ -35,7 +32,20 @@ export const markNotificationsAsRead = createAsyncThunk(
       });
       return true;
     } catch (error) {
-      console.error("Error marking notifications as read:", error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || { message: error.message });
+    }
+  }
+);
+
+export const deleteNotification = createAsyncThunk(
+  "notificationSystem/deleteNotification",
+  async (notificationId, { rejectWithValue }) => {
+    try {
+      await axios.delete(`${BASE_URL}/api/v1/notification-system/${notificationId}`, {
+        withCredentials: true
+      });
+      return notificationId;
+    } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
   }
@@ -50,10 +60,11 @@ const notificationSystemSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
+      // Fetch notifications
       .addCase(fetchNotifications.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -61,13 +72,12 @@ const notificationSystemSlice = createSlice({
       .addCase(fetchNotifications.fulfilled, (state, action) => {
         state.loading = false;
         state.notifications = action.payload;
-        state.error = null;
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to fetch notifications";
-        console.error("Notification fetch failed:", state.error);
       })
+      // Mark as read
       .addCase(markNotificationsAsRead.fulfilled, (state) => {
         state.notifications = state.notifications.map(notification => ({
           ...notification,
@@ -76,7 +86,15 @@ const notificationSystemSlice = createSlice({
       })
       .addCase(markNotificationsAsRead.rejected, (state, action) => {
         state.error = action.payload?.message || "Failed to mark notifications as read";
-        console.error("Mark as read failed:", state.error);
+      })
+      // Delete notification
+      .addCase(deleteNotification.fulfilled, (state, action) => {
+        state.notifications = state.notifications.filter(
+          notification => notification._id !== action.payload
+        );
+      })
+      .addCase(deleteNotification.rejected, (state, action) => {
+        state.error = action.payload?.message || "Failed to delete notification";
       });
   },
 });

@@ -142,7 +142,7 @@ const Messages = () => {
   const groupedMessages = groupMessagesByDate(messages || []);
 
   return (
-    <div className="flex flex-col space-y-6 py-4">
+    <div className="flex flex-col space-y-6 py-4 ml-auto">
       {/* Profile Info */}
       <div className="flex flex-col items-center justify-center pt-4 pb-8">
         <Avatar className="h-24 w-24 mb-4">

@@ -80,12 +80,12 @@ const EditProfile = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Edit Profile</h1>
+    <div className="max-w-2xl mx-auto px-4 md:px-6 ml-20 py-4 md:py-6">
+      <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Edit Profile</h1>
       
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Avatar className="w-16 h-16">
+      <div className="space-y-4 md:space-y-6">
+        <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4">
+          <Avatar className="w-20 h-20 md:w-24 md:h-24">
             <AvatarImage
               src={
                 input.profilePhoto instanceof File
@@ -97,11 +97,11 @@ const EditProfile = () => {
             <AvatarFallback>{user?.username?.[0]?.toUpperCase()}</AvatarFallback>
           </Avatar>
           
-          <div>
-            <h2 className="font-medium">{user?.username}</h2>
+          <div className="text-center md:text-left">
+            <h2 className="font-medium text-lg mb-1">{user?.username}</h2>
             <Button
               variant="link"
-              className="p-0 h-auto text-blue-500"
+              className="p-0 h-auto text-blue-500 text-sm md:text-base"
               onClick={() => imageRef.current?.click()}
             >
               Change profile photo
@@ -116,42 +116,44 @@ const EditProfile = () => {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Bio</label>
+        <div className="space-y-1.5 md:space-y-2">
+          <label className="text-sm font-medium block">Bio</label>
           <Textarea
             placeholder="Write something about yourself..."
             value={input.bio}
             onChange={(e) => setInput({ ...input, bio: e.target.value })}
-            className="resize-none"
+            className="resize-none text-sm md:text-base min-h-[100px]"
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Gender</label>
+        <div className="space-y-1.5 md:space-y-2">
+          <label className="text-sm font-medium block">Gender</label>
           <Select value={input.gender} onValueChange={selectChangeHandler}>
-            <SelectTrigger>
+            <SelectTrigger className="text-sm md:text-base">
               <SelectValue placeholder="Select gender" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="male" className="text-sm md:text-base">Male</SelectItem>
+                <SelectItem value="female" className="text-sm md:text-base">Female</SelectItem>
+                <SelectItem value="other" className="text-sm md:text-base">Other</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
         </div>
 
-        <div className="flex justify-end gap-4">
+        <div className="flex flex-col md:flex-row justify-end gap-3 md:gap-4 pt-2">
           <Button
             variant="outline"
             onClick={() => navigate(`/profile/${user._id}`)}
+            className="w-full md:w-auto text-sm md:text-base"
           >
             Cancel
           </Button>
           <Button
             onClick={editProfileHandler}
             disabled={loading}
+            className="w-full md:w-auto text-sm md:text-base"
           >
             {loading ? (
               <>

@@ -7,21 +7,27 @@ import { useNavigate } from "react-router-dom";
 import api from "@/api/axios";
 import { toast } from "sonner";
 
-const FollowModal = ({ isOpen, onClose, userId, type }) => {
+const FollowModal = ({ isOpen, onClose, userId, type: initialType }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState(initialType);
   const { user } = useSelector((store) => store.auth);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUsers();
-  }, [userId, type]);
+    setActiveTab(initialType);
+  }, [initialType]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchUsers();
+    }
+  }, [userId, activeTab, isOpen]);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      // Using the correct endpoint based on the type (followers/following)
-      const { data } = await api.get(`/user/${userId}/${type === 'followers' ? 'followers' : 'following'}`);
+      const { data } = await api.get(`/user/${userId}/${activeTab === 'followers' ? 'followers' : 'following'}`);
       if (data.success) {
         setUsers(data.users);
       } else {
@@ -65,43 +71,73 @@ const FollowModal = ({ isOpen, onClose, userId, type }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-sm">
-        <h2 className="text-xl font-semibold mb-4 text-center">
-          {type === "followers" ? "Followers" : "Following"}
-        </h2>
-        
-        {loading ? (
-          <div className="text-center py-4">Loading...</div>
-        ) : users.length === 0 ? (
-          <div className="text-center py-4">No users found</div>
-        ) : (
-          <div className="space-y-4">
-            {users.map((u) => (
-              <div key={u._id} className="flex items-center justify-between">
-                <div 
-                  className="flex items-center gap-3 cursor-pointer"
-                  onClick={() => handleUserClick(u._id)}
-                >
-                  <Avatar>
-                    <AvatarImage src={u.profilePicture} />
-                    <AvatarFallback>{u.username[0].toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{u.username}</p>
-                  </div>
-                </div>
-                {user._id !== u._id && (
-                  <Button
-                    variant="outline"
-                    onClick={() => handleFollowUnfollow(u._id)}
+      <DialogContent className="w-[90vw] sm:w-[400px] max-w-lg p-0">
+        {/* Tabs Header */}
+        <div className="flex border-b">
+          <button
+            className={`flex-1 py-4 text-center font-semibold text-sm ${
+              activeTab === 'followers'
+                ? 'border-b-2 border-black'
+                : 'text-gray-500'
+            }`}
+            onClick={() => setActiveTab('followers')}
+          >
+            Followers
+          </button>
+          <button
+            className={`flex-1 py-4 text-center font-semibold text-sm ${
+              activeTab === 'following'
+                ? 'border-b-2 border-black'
+                : 'text-gray-500'
+            }`}
+            onClick={() => setActiveTab('following')}
+          >
+            Following
+          </button>
+        </div>
+
+        {/* Users List */}
+        <div className="p-4 max-h-[60vh] overflow-y-auto">
+          {loading ? (
+            <div className="text-center py-4">Loading...</div>
+          ) : users.length === 0 ? (
+            <div className="text-center py-4 text-gray-500">
+              No {activeTab} yet
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {users.map((u) => (
+                <div key={u._id} className="flex items-center justify-between">
+                  <div 
+                    className="flex items-center gap-3 cursor-pointer"
+                    onClick={() => handleUserClick(u._id)}
                   >
-                    {u.followers.includes(user._id) ? "Unfollow" : "Follow"}
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+                    <Avatar>
+                      <AvatarImage src={u.profilePicture} />
+                      <AvatarFallback>{u.username[0].toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{u.username}</p>
+                      <p className="text-sm text-gray-500">{u.bio || 'No bio'}</p>
+                    </div>
+                  </div>
+                  {user._id !== u._id && (
+                    <Button
+                      variant={u.followers.includes(user._id) ? "secondary" : "default"}
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFollowUnfollow(u._id);
+                      }}
+                    >
+                      {u.followers.includes(user._id) ? "Unfollow" : "Follow"}
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

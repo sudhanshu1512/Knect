@@ -73,9 +73,9 @@ function App() {
     if (user) {
       const socketio = io("https://knect.onrender.com", {
         query: {
-          userId: user?._id
+          userId: user?._id,
         },
-        transports: ["websocket"]
+        transports: ["websocket"],
       });
       dispatch(setSocket(socketio));
 

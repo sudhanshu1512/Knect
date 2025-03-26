@@ -4,8 +4,8 @@ const api = axios.create({
   baseURL: "https://knect.onrender.com/api/v1",
   withCredentials: true,
   headers: {
-    "Content-Type": "application/json"
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 // Add a request interceptor to add auth token
@@ -36,9 +36,9 @@ api.interceptors.response.use(
       try {
         // Try to refresh the token
         const response = await axios.get(
-          "https://knect.onrender.com/api/v1/user/refresh",
+          "http://localhost:8000/api/v1/user/refresh",
           {
-            withCredentials: true
+            withCredentials: true,
           }
         );
 

@@ -91,12 +91,23 @@ const Profile = () => {
 
   const followUnfollowHandler = async () => {
     try {
-      await api.post(`/user/followorunfollow/${userProfile?._id}`);
-      // Refetch user profile after follow/unfollow
-      useGetUserProfile(userId);
+      const { data } = await api.post(`/user/followorunfollow/${userProfile?._id}`);
+      if (data.success) {
+        // Update the userProfile state with new followers array
+        const updatedFollowers = isFollowing
+          ? userProfile.followers.filter(id => id !== user?._id)
+          : [...userProfile.followers, user?._id];
+        
+        dispatch(setUserProfile({
+          ...userProfile,
+          followers: updatedFollowers
+        }));
+        
+        toast.success(data.message);
+      }
     } catch (error) {
       console.error('Error following/unfollowing:', error);
-      toast.error('Failed to follow/unfollow');
+      toast.error(error?.response?.data?.message || 'Failed to follow/unfollow');
     }
   };
 
@@ -156,29 +167,29 @@ const Profile = () => {
   }
 
   return (
-    <div className='flex max-w-5xl justify-center mx-auto pl-10'>
-      <div>
-        <section className='flex gap-10 py-10'>
-          <div>
-            <Avatar className='w-40 h-40'>
+    <div className='flex max-w-5xl justify-center mx-auto px-4 md:px-10'>
+      <div className='w-full'>
+        <section className='flex flex-col md:flex-row md:gap-10 py-6 md:py-10 items-center md:items-start'>
+          <div className='mb-6 md:mb-0'>
+            <Avatar className='w-24 h-24 md:w-40 md:h-40'>
               <AvatarImage src={userProfile?.profilePicture} alt={userProfile?.username} />
               <AvatarFallback>{userProfile?.username?.[0]?.toUpperCase()}</AvatarFallback>
             </Avatar>
           </div>
-          <div>
-            <div className='flex gap-10 items-center'>
-              <span>{userProfile?.username}</span>
+          <div className='text-center md:text-left'>
+            <div className='flex flex-col md:flex-row md:gap-10 items-center'>
+              <span className='text-xl mb-4 md:mb-0'>{userProfile?.username}</span>
               {isOwnProfile ? (
                 <Link to="/account/edit">
-                  <Button>Edit Profile</Button>
+                  <Button className='w-full md:w-auto'>Edit Profile</Button>
                 </Link>
               ) : (
-                <Button onClick={followUnfollowHandler}>
+                <Button onClick={followUnfollowHandler} className='w-full md:w-auto'>
                   {isFollowing ? "Unfollow" : "Follow"}
                 </Button>
               )}
             </div>
-            <div className='flex gap-10 my-5'>
+            <div className='flex justify-center md:justify-start gap-4 md:gap-10 my-4 md:my-5 text-sm md:text-base'>
               <span><strong>{userProfile?.posts?.length || 0}</strong> posts</span>
               <button
                 onClick={() => {
@@ -187,7 +198,7 @@ const Profile = () => {
                 }}
                 className="hover:underline"
               >
-                <strong>{userProfile?.followers?.length || 0}</strong> followers
+                <strong>{userProfile?.followers?.length || 0}</strong> {userProfile?.followers?.length === 1 ? 'follower' : 'followers'}
               </button>
               <button
                 onClick={() => {
@@ -199,17 +210,17 @@ const Profile = () => {
                 <strong>{userProfile?.following?.length || 0}</strong> following
               </button>
             </div>
-            <div className='flex flex-col gap-1'>
-              <span className='font-semibold'>{userProfile?.bio || 'bio here...'}</span>
-              <Badge className='w-fit' variant='secondary'>
-                <AtSign /> <span className='pl-1'>{userProfile?.username}</span>
+            <div className='flex flex-col gap-1 items-center md:items-start'>
+              <span className='font-semibold text-sm md:text-base'>{userProfile?.bio || 'bio here...'}</span>
+              <Badge className='w-fit text-sm' variant='secondary'>
+                <AtSign className='w-4 h-4' /> <span className='pl-1'>{userProfile?.username}</span>
               </Badge>
             </div>
           </div>
         </section>
 
         <div className='border-t'>
-          <div className='flex justify-center gap-14'>
+          <div className='flex justify-center gap-6 md:gap-14 text-xs md:text-sm'>
             <span
               className={`py-3 cursor-pointer ${activeTab === 'posts' ? 'font-bold border-t border-black -mt-[1px]' : ''}`}
               onClick={() => setActiveTab('posts')}
@@ -230,12 +241,12 @@ const Profile = () => {
             </span>
           </div>
 
-          <div className='grid grid-cols-3 gap-1'>
+          <div className='grid grid-cols-2 md:grid-cols-3 gap-1'>
             {loading ? (
-              <div className="col-span-3 text-center py-4">Loading...</div>
+              <div className="col-span-2 md:col-span-3 text-center py-4">Loading...</div>
             ) : activeTab === 'posts' ? (
               userProfile?.posts?.map((post) => (
-                <div key={post._id} className='aspect-square w-[293px] h-[293px] relative group'>
+                <div key={post._id} className='aspect-square w-full relative group'>
                   <img
                     src={post.image}
                     alt='post'
@@ -243,25 +254,29 @@ const Profile = () => {
                   />
                   {isOwnProfile && (
                     <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                            <button className='flex items-center gap-3 p-2 hover:text-red-500'>
-                          <Heart />
-                          <span>{post?.likes.length}</span>
+                      <div className='flex flex-col md:flex-row gap-2 md:gap-4'>
+                        <button className='flex items-center gap-2 p-2 hover:text-red-500'>
+                          <Heart className='w-5 h-5' />
+                          <span className='text-sm'>{post?.likes.length}</span>
                         </button>
-                        <button className='flex items-center gap-3 p-2 hover:text-gray-300'>
-                          <MessageCircle />
-                          <span>{post?.comments.length}</span>
+                        <button className='flex items-center gap-2 p-2 hover:text-gray-300'>
+                          <MessageCircle className='w-5 h-5' />
+                          <span className='text-sm'>{post?.comments.length}</span>
                         </button>
-                      <button
-                        onClick={() => deletePost(post._id)}className='flex items-center p-2 gap-3 hover:text-red-500' >
-                          <Trash />
-                      </button>
+                        <button
+                          onClick={() => deletePost(post._id)}
+                          className='flex items-center p-2 hover:text-red-500'
+                        >
+                          <Trash className='w-5 h-5' />
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
               ))
             ) : activeTab === 'saved' ? (
               bookmarks?.map((bookmark) => (
-                <div key={bookmark._id} className='aspect-square w-[293px] h-[293px] relative group'>
+                <div key={bookmark._id} className='aspect-square w-full relative group'>
                   <img
                     src={bookmark.image}
                     alt='saved post'
@@ -270,15 +285,16 @@ const Profile = () => {
                   <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <button
                       onClick={() => removeFromBookmarks(bookmark.postId)}
-                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" >
-                     <Trash />
+                      className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
+                    >
+                      <Trash className='w-5 h-5' />
                     </button>
                   </div>
                 </div>
               ))
             ) : (
               favorites?.map((favorite) => (
-                <div key={favorite._id} className='aspect-square w-[293px] h-[293px] relative group'>
+                <div key={favorite._id} className='aspect-square w-full relative group'>
                   <img
                     src={favorite.image}
                     alt='favorite post'
@@ -287,8 +303,9 @@ const Profile = () => {
                   <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <button
                       onClick={() => removeFromFavorites(favorite._id)}
-                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                      <Trash />
+                      className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
+                    >
+                      <Trash className='w-5 h-5' />
                     </button>
                   </div>
                 </div>

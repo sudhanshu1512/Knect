@@ -71,9 +71,9 @@ const Signup = () => {
               input,
               {
                 headers: {
-                  "Content-Type": "application/json"
+                  "Content-Type": "application/json",
                 },
-                withCredentials: true
+                withCredentials: true,
               }
             );
             if (res.data.success) {

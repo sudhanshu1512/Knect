@@ -229,7 +229,7 @@ const Post = ({ post }) => {
             <MoreHorizontal className="cursor-pointer" />
             
           </DialogTrigger>
-          <DialogContent className="flex flex-col items-center text-sm text-center">
+          <DialogContent className="flex flex-col items-center text-sm text-center w-[60vw] md:w-[40vw]">
             {post?.author?._id !== user?._id && (
               <Button
                 variant="ghost"

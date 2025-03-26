@@ -52,3 +52,41 @@ export const createNotification = async (req, res) => {
     res.status(500).json({ message: error.message, success: false });
   }
 };
+
+export const deleteNotification = async (req, res) => {
+  try {
+    const userId = req.id;
+    const { notificationId } = req.params;
+
+    // Find the notification
+    const notification = await NotificationSystem.findById(notificationId);
+    
+    if (!notification) {
+      return res.status(404).json({ 
+        message: "Notification not found", 
+        success: false 
+      });
+    }
+
+    // Check if the user is authorized to delete this notification
+    if (notification.recipient.toString() !== userId) {
+      return res.status(403).json({ 
+        message: "Not authorized to delete this notification", 
+        success: false 
+      });
+    }
+
+    // Delete the notification
+    await NotificationSystem.findByIdAndDelete(notificationId);
+
+    res.status(200).json({ 
+      message: "Notification deleted successfully", 
+      success: true 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      message: error.message, 
+      success: false 
+    });
+  }
+};

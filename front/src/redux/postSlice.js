@@ -32,23 +32,35 @@ const postSlice = createSlice({
             state.posts = state.posts.filter(post => post._id !== action.payload);
         },
         updatePostComments: (state, action) => {
-            const { postId, comment } = action.payload;
+            const { postId, comment, comments } = action.payload;
+            
+            // Function to update comments based on action type
+            const updateComments = (post) => {
+                if (comments) {
+                    // If comments array is provided, use it directly (for deletion)
+                    return {
+                        ...post,
+                        comments
+                    };
+                }
+                // If single comment is provided, add it to existing comments
+                return {
+                    ...post,
+                    comments: [...post.comments, comment]
+                };
+            };
+
             // Update in posts array
             state.posts = state.posts.map(post => {
                 if (post._id === postId) {
-                    return {
-                        ...post,
-                        comments: [...post.comments, comment]
-                    };
+                    return updateComments(post);
                 }
                 return post;
             });
+
             // Update in selectedPost if it's the same post
             if (state.selectedPost?._id === postId) {
-                state.selectedPost = {
-                    ...state.selectedPost,
-                    comments: [...state.selectedPost.comments, comment]
-                };
+                state.selectedPost = updateComments(state.selectedPost);
             }
         }
     }
